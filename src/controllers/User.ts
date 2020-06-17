@@ -46,14 +46,14 @@ class User {
 
     async update(req: Request, res: Response) {
         console.log('acessou a tela')
-        const dado = req.param;
+        const dado = req.params;
         console.log(dado)
-        try {
-            const dados = req.param;
-            console.log(`dados do params: ${dados}`)
-        } catch(e){ 
-            return res.json({'message': 'Erro ao atualizar o dado do usuário'})
-        }
+        // try {
+        //     const dados = req.param;
+        //     console.log(`dados do params: ${dados}`)
+        // } catch(e){ 
+        //     return res.json({'message': 'Erro ao atualizar o dado do usuário'})
+        // }
         return res.send('update user')
     }
 
