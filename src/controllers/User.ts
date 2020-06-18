@@ -45,15 +45,21 @@ class User {
     }
 
     async update(req: Request, res: Response) {
-        console.log('acessou a tela')
-        const dado = req.params;
-        console.log(dado)
-        // try {
-        //     const dados = req.param;
-        //     console.log(`dados do params: ${dados}`)
-        // } catch(e){ 
-        //     return res.json({'message': 'Erro ao atualizar o dado do usuário'})
-        // }
+        try {
+            const dados = req.params;
+            const {name,lastname, email, age } = req.body;
+            const new_user = {name, lastname, email, age}
+            await knex('users').select('*').where(dados);
+
+            
+            const trx = await knex.transaction();
+            await trx('users').insert(new_user);
+            trx.commit();
+            
+            console.log(`dados do params: ${dados.id}`)
+        } catch(e){ 
+            return res.json({'message': 'Erro ao atualizar o dado do usuário'})
+        }
         return res.send('update user')
     }
 
