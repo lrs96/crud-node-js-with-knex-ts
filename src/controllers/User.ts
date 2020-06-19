@@ -48,23 +48,42 @@ class User {
         try {
             const dados = req.params;
             const {name,lastname, email, age } = req.body;
-            const new_user = {name, lastname, email, age}
-            await knex('users').select('*').where(dados);
-
-            
-            const trx = await knex.transaction();
-            await trx('users').insert(new_user);
-            trx.commit();
-            
+            await knex('users').where('id', dados).update({
+                name: name,
+                lastname: lastname,
+                email: email,
+                age: age
+            });
             console.log(`dados do params: ${dados.id}`)
+            console.log('usuário atualizado com sucesso')
+            return res.json({
+                message: 'Usuário atualizado com sucesso'
+            })
         } catch(e){ 
+            console.log(`Erro ao atualizar o usuário: ${e.message}`)
             return res.json({'message': 'Erro ao atualizar o dado do usuário'})
         }
-        return res.send('update user')
+        return res.json({
+            message: 'Esse usuário não existe'
+        })
     }
 
     async delete(req: Request, res: Response) {
-        return res.send()
+        try {
+            const dados = req.params;
+            await knex('users').where('id', dados).del();
+            console.log('Usuário excluído com sucesso')
+            // const trx = await knex.transaction()
+            // await trx('users').delete();
+            return res.json({
+                message: "Usuário excluído com sucesso"
+            })
+        } catch(e) {
+            console.log(`Erro ao deletar o usuário: ${e.message}`)
+        }
+        return res.json({
+            message: "Esse usuário não existe"
+        })
     }
 }
 
