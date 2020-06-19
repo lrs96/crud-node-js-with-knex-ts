@@ -9,9 +9,10 @@ class User {
             if(users != null) {
                 const serelizadedUsers = users.map(user => {
                     return {
+                        id: user.id,
                         name: user.name,
                         lastname: user.lastname,
-                        email: user.lastname,
+                        email: user.email,
                         age: user.age
                     }
                 })
@@ -47,20 +48,34 @@ class User {
     async update(req: Request, res: Response) {
         try {
             const dados = req.params;
-            const {name,lastname, email, age } = req.body;
-            await knex('users').where('id', dados).update({
+            const {name, lastname, email, age } = req.body;
+            console.log(`
+                nome: ${name},
+                lastname: ${lastname},
+                email: ${email},
+                age: ${age}
+            `)
+            await knex('users').update({
                 name: name,
                 lastname: lastname,
                 email: email,
                 age: age
-            });
-            console.log(`dados do params: ${dados.id}`)
-            console.log('usuário atualizado com sucesso')
+            }).where('id', dados);
+            
+            const trx = await knex.transaction();
+            // await trx('users').where({'id': dados})
+            //     .update({
+            //         name: name,
+            //         lastname: lastname,
+            //         email: email,
+            //         age: age
+            //     });
+            await trx.commit()
             return res.json({
                 message: 'Usuário atualizado com sucesso'
             })
         } catch(e){ 
-            console.log(`Erro ao atualizar o usuário: ${e.message}`)
+            console.log(`Erro ao atualizar o usuário: ${e}`)
             return res.json({'message': 'Erro ao atualizar o dado do usuário'})
         }
         return res.json({
@@ -71,10 +86,8 @@ class User {
     async delete(req: Request, res: Response) {
         try {
             const dados = req.params;
-            await knex('users').where('id', dados).del();
-            console.log('Usuário excluído com sucesso')
-            // const trx = await knex.transaction()
-            // await trx('users').delete();
+            const trx = await knex.transaction()
+            await trx('users').where('id', dados).del();
             return res.json({
                 message: "Usuário excluído com sucesso"
             })
