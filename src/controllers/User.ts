@@ -1,7 +1,6 @@
 import {Response, Request } from 'express'
 import knex from '../database/connection';
 
-
 class User {
     async show(req: Request, res: Response) {
         try{
@@ -28,6 +27,11 @@ class User {
         }
 
     }
+
+    async show_user(req: Request, res: Response) {
+        return res.json({message: 'success'})
+    }
+
     async create(req: Request, res: Response) {
         try {
             const { name, lastname, email, age } = req.body;
@@ -47,30 +51,16 @@ class User {
 
     async update(req: Request, res: Response) {
         try {
-            const dados = req.params;
+            const id_user = req.params.id;
             const {name, lastname, email, age } = req.body;
-            console.log(`
-                nome: ${name},
-                lastname: ${lastname},
-                email: ${email},
-                age: ${age}
-            `)
-            await knex('users').update({
-                name: name,
-                lastname: lastname,
-                email: email,
-                age: age
-            }).where('id', dados);
-            
-            const trx = await knex.transaction();
-            // await trx('users').where({'id': dados})
-            //     .update({
-            //         name: name,
-            //         lastname: lastname,
-            //         email: email,
-            //         age: age
-            //     });
-            await trx.commit()
+            await knex('users')
+            .where('id', '=', id_user)
+            .update({
+                name,
+                lastname,
+                email,
+                age
+            });
             return res.json({
                 message: 'Usuário atualizado com sucesso'
             })
@@ -85,14 +75,15 @@ class User {
 
     async delete(req: Request, res: Response) {
         try {
-            const dados = req.params;
-            const trx = await knex.transaction()
-            await trx('users').where('id', dados).del();
+            const id_user = req.params.id;
+            await knex('users')
+                .where('id', id_user).del();
             return res.json({
                 message: "Usuário excluído com sucesso"
             })
         } catch(e) {
             console.log(`Erro ao deletar o usuário: ${e.message}`)
+            return res.json({message: 'erro ao deletar o aluno'})
         }
         return res.json({
             message: "Esse usuário não existe"
